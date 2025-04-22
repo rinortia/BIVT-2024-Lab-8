@@ -6,23 +6,11 @@ using System.Threading.Tasks;
 
 namespace Lab_8
 {
-    public class LetterStat
-    {
-        public char Letter { get; set; }
-        public double Percentage { get; set; }
-
-        public LetterStat(char letter, double percentage)
-        {
-            Letter = letter;
-            Percentage = percentage;
-        }
-    }
-
     public class Blue_3 : Blue
     {
-        private LetterStat[] _output;
+        private (char Letter, double Percentage)[] _output;
 
-        public LetterStat[] Output => _output?.ToArray();
+        public (char Letter, double Percentage)[] Output => _output?.ToArray();
 
         public Blue_3(string input) : base(input)
         {
@@ -31,54 +19,34 @@ namespace Lab_8
 
         public override void Review()
         {
-            if (string.IsNullOrEmpty(Input))
+            if (string.IsNullOrWhiteSpace(Input))
             {
-                _output = new LetterStat[0];
+                _output = Array.Empty<(char, double)>();
                 return;
             }
-                        
+
             char[] separators = { ' ', '.', '!', '?', ',', ':', '\"', ';', '–', '(', ')', '[', ']', '{', '}', '/' };
+
             var words = Input
                 .Split(separators, StringSplitOptions.RemoveEmptyEntries)
-                .Where(w => w.Length > 0 && char.IsLetter(w[0])) 
-                .ToArray();
+                .Where(w => w.Length > 0 && char.IsLetter(w[0]))
+                .Select(w => char.ToLower(w[0]))
+                .ToList();
 
-            if (words.Length == 0)
+            if (words.Count == 0)
             {
-                _output = new LetterStat[0];
+                _output = Array.Empty<(char, double)>();
                 return;
             }
-                        
-            char[] letters = new char[words.Length];
-            int[] counts = new int[words.Length];
-            int uniqueCount = 0;
-                        
-            foreach (var w in words)
-            {
-                char c = char.ToLower(w[0]);
-                int idx = -1;
-                for (int i = 0; i < uniqueCount; i++)
-                    if (letters[i] == c) { idx = i; break; }
 
-                if (idx >= 0)
-                    counts[idx]++;
-                else
-                {
-                    letters[uniqueCount] = c;
-                    counts[uniqueCount] = 1;
-                    uniqueCount++;
-                }
-            }
-            
-            _output = Enumerable
-                .Range(0, uniqueCount)
-                .Select(i => new LetterStat(
-                    letters[i],
-                    counts[i] * 100.0 / words.Length
-                ))
-                .OrderByDescending(s => s.Percentage)
-                .ThenBy(s => s.Letter)
+            var grouped = words
+                .GroupBy(c => c)
+                .Select(g => (Letter: g.Key, Percentage: Math.Round(g.Count() * 100.0 / words.Count, 4)))
+                .OrderByDescending(item => item.Percentage)
+                .ThenBy(item => item.Letter)
                 .ToArray();
+
+            _output = grouped;
         }
 
         public override string ToString()
@@ -88,8 +56,7 @@ namespace Lab_8
 
             return string.Join(Environment.NewLine,
                 _output.Select(s =>
-                    $"{s.Letter} - {Math.Round(s.Percentage, 4):F4}"
-                      .Replace('.', ',')
+                    $"{s.Letter} - {s.Percentage:F4}".Replace('.', ',')
                 ));
         }
     }
