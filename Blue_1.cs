@@ -11,14 +11,14 @@ namespace Lab_8
 
         public Blue_1(string input) : base(input)
         {
-            _output = new string[0];
+            _output = null;
         }
 
         public override void Review()
         {
             if (string.IsNullOrEmpty(Input))
             {
-                _output = new string[0];
+                _output = null;
                 return;
             }
 
@@ -26,7 +26,7 @@ namespace Lab_8
 
             if (words.Length == 0)
             {
-                _output = new string[0];
+                _output = null;
                 return;
             }
 
@@ -40,7 +40,7 @@ namespace Lab_8
 
                 if (currentLine.Length + 1 + word.Length <= maxLength)
                 {
-                    currentLine += " " + word; 
+                    currentLine += " " + word;
                 }
                 else
                 {
@@ -65,8 +65,8 @@ namespace Lab_8
                 return "";
             }
 
-            return string.Join("\n", _output);
+            return string.Join(Environment.NewLine, _output);
         }
     }
 }
-    
+
